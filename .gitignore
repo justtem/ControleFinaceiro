@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# Variaveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Configuracoes locais
+application-local.properties
+
+# Logs
+*.log
+logs/
