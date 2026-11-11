@@ -13,4 +13,9 @@ public class LoginResponse {
     public String getToken() {
         return token;
     }
+
+    public String getTipo() {
+    return tipo;
+    
+    }
 }

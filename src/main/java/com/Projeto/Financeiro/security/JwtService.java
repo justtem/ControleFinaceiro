@@ -3,7 +3,6 @@ package com.Projeto.Financeiro.security;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
-import javax.print.DocFlavor.STRING;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
