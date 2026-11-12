@@ -75,6 +75,9 @@ public class ContaService {
         return converterParaResponse(atualizada);
     }
 
+
+    // ================= MÉTODOS AUXILIARES =================
+    
     // Buscar entidade verificando o proprietário
     private Conta buscarEntidadePorId(Long id, long usuarioId) {
 

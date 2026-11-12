@@ -15,5 +15,5 @@ public interface ContaRepository extends JpaRepository<Conta, Long> {
 
     Optional<Conta> findByIdAndUsuario_Id(Long id, long usuarioId);
 
-    boolean existsByAndUsuario_id(Long id, long usuarioId);
+    boolean existsByIdAndUsuario_Id(Long id, long usuarioId);
 }

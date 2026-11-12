@@ -71,6 +71,8 @@ public class CategoriaService {
         return converterParaResponse(atualizada);
     }
 
+    // ================= MÉTODOS AUXILIARES E VALIDAÇÕES =================
+    
     private  Categoria buscarEntidadePorId(Long id, long usuarioId) {
 
         return categoriaRepository
