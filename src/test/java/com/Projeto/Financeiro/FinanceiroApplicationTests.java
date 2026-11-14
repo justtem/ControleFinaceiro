@@ -304,6 +304,85 @@ class FinanceiroApplicationTests {
         mockMvc.perform(get("/metas/" + metaId)
                 .header("Authorization", bearerToken))
                 .andExpect(status().isNotFound());
+
+		// 18. TESTAR PERFIL DO USUÁRIO (GET /usuarios/me e PUT /usuarios/me) + PROTEÇÃO DE SENHA LGPD
+        mockMvc.perform(get("/usuarios/me")
+                .header("Authorization", bearerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("ana.auto@teste.com"))
+                .andExpect(jsonPath("$.dataCadastro").exists())
+                .andExpect(jsonPath("$.dataAceiteTermos").exists())
+                .andExpect(jsonPath("$.senha").doesNotExist()); // Garante que o hash da senha jamais vaza no JSON!
+
+        mockMvc.perform(put("/usuarios/me")
+                .header("Authorization", bearerToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "nome": "Ana Atualizada LGPD",
+                        "email": "ana.auto@teste.com",
+                        "senha": "senhaSegura123",
+                        "aceitouTermos": true
+                    }
+                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Ana Atualizada LGPD"))
+                .andExpect(jsonPath("$.dataAceiteTermos").exists());
+
+        // 19. TESTAR LGPD (Art. 8º): Recusar os termos de uso no cadastro deve bloquear com 400 Bad Request
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "nome": "Usuario Sem Consentimento",
+                        "email": "sem.lgpd@teste.com",
+                        "senha": "senhaSegura123",
+                        "aceitouTermos": false
+                    }
+                """))
+                .andExpect(status().isBadRequest());
+
+        // 20. CRIAR UMA NOVA META ATIVA PARA TESTAR PORTABILIDADE E EXCLUSÃO EM CASCATA COM DADOS EM TODAS AS 4 TABELAS
+        mockMvc.perform(post("/metas")
+                .header("Authorization", bearerToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "nome": "Viagem de Férias",
+                        "valorObjetivo": 3000.00,
+                        "valorAtual": 1500.00,
+                        "dataLimite": "2027-06-30"
+                    }
+                """))
+                .andExpect(status().isCreated());
+
+        // 21. TESTAR LGPD (Art. 18, V - Portabilidade): Exportar todos os dados do titular (GET /usuarios/me/exportar)
+        mockMvc.perform(get("/usuarios/me/exportar")
+                .header("Authorization", bearerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nomeTitular").value("Ana Atualizada LGPD"))
+                .andExpect(jsonPath("$.emailTitular").value("ana.auto@teste.com"))
+                .andExpect(jsonPath("$.dataAceiteTermosLgpd").exists())
+                .andExpect(jsonPath("$.categorias.length()").value(2))
+                .andExpect(jsonPath("$.contas.length()").value(1))
+                .andExpect(jsonPath("$.lancamentos.length()").value(3))
+                .andExpect(jsonPath("$.metasFinanceiras.length()").value(1));
+
+       // 22. TESTAR LGPD (Art. 18, VI - Direito ao Esquecimento): Excluir conta com Metas, Lançamentos, Contas e Categorias ativas!
+        mockMvc.perform(delete("/usuarios/me")
+                .header("Authorization", bearerToken))
+                .andExpect(status().isNoContent());
+
+        // 22.1. Confirmar que o token antigo é recusado imediatamente (401 Unauthorized)
+        mockMvc.perform(get("/usuarios/me")
+                .header("Authorization", bearerToken))
+                .andExpect(status().isUnauthorized());
+
+        // 22.2. Confirmar que o usuário foi realmente eliminado do banco tentando fazer login (Deve dar 401 Unauthorized)
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonLogin))
+                .andExpect(status().isUnauthorized());
     }
 
     // Extrai qualquer campo (texto ou número) do JSON retornado usando Java puro

@@ -1,24 +1,26 @@
 package com.Projeto.Financeiro.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class UsuarioRequest {
-    
+
     @NotBlank(message = "O nome é obrigatório")
     @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
     private String nome;
 
     @NotBlank(message = "A senha é obrigatória")
-    @Size(min = 8, message = "A senha deve ter pelo menos 8 carcteres")
+    @Size(min = 8, message = "A senha deve ter pelo menos 8 caracteres")
     private String senha;
 
     @NotBlank(message = "O e-mail é obrigatório")
     @Email(message = "Informe um e-mail válido")
     private String email;
 
-
+    @AssertTrue(message = "É obrigatório aceitar os Termos de Uso e a Política de Privacidade (LGPD)")
+    private boolean aceitouTermos = true;
 
     public String getNome() {
         return this.nome;
@@ -44,5 +46,11 @@ public class UsuarioRequest {
         this.email = email;
     }
 
-    
+    public boolean isAceitouTermos() {
+        return this.aceitouTermos;
+    }
+
+    public void setAceitouTermos(boolean aceitouTermos) {
+        this.aceitouTermos = aceitouTermos;
+    }
 }

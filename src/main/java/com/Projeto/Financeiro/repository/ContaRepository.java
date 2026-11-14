@@ -10,10 +10,12 @@ import com.Projeto.Financeiro.model.Conta;
 
 @Repository
 public interface ContaRepository extends JpaRepository<Conta, Long> {
-    
+
     List<Conta> findAllByUsuario_Id(long usuarioId);
 
     Optional<Conta> findByIdAndUsuario_Id(Long id, long usuarioId);
 
     boolean existsByIdAndUsuario_Id(Long id, long usuarioId);
+
+    void deleteAllByUsuario_Id(long usuarioId);
 }

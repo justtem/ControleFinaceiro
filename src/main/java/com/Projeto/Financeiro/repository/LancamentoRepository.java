@@ -117,4 +117,7 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
 
     // Busca as 5 movimentações mais recentes do usuário (Histórico do Dashboard)
     List<Lancamento> findTop5ByUsuario_IdOrderByDataDescIdDesc(long usuarioId);
+
+    // Remove todos os lançamentos do usuário (LGPD - Direito ao Esquecimento)
+    void deleteAllByUsuario_Id(long usuarioId);
 }

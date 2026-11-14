@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.usuarioService = usuarioService;
     }
 
-    @Override
+   @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -55,10 +55,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authorizationHeader.substring(7);
 
         try {
+            // Limpa qualquer resquício de autenticação anterior na mesma thread antes de validar o token
+            SecurityContextHolder.clearContext();
+
             // Extrai o e-mail armazenado no JWT
             String email = jwtService.extrairEmail(token);
 
-            // Evita substituir uma autenticação já existente
             if (email != null
                     && SecurityContextHolder.getContext()
                             .getAuthentication() == null) {
@@ -73,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (jwtService.validarToken(token, usuario)) {
 
                         Collection<GrantedAuthority> autoridades =
-                             new java.util.ArrayList<>();
+                               new java.util.ArrayList<>();
 
                         autoridades.add(
                                 new SimpleGrantedAuthority(
@@ -95,8 +97,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception ex) {
-            // Token inválido ou expirado: a requisição
-            // continua sem autenticação.
+            // Token inválido ou expirado: a requisição continua sem autenticação.
             SecurityContextHolder.clearContext();
         }
 

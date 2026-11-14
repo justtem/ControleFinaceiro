@@ -14,10 +14,10 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-@Entity 
+@Entity
 @Table(name = "Usuario")
 public class Usuario {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -30,8 +30,7 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-
-    @NotBlank(message = "A senha é obrigatórioa")
+    @NotBlank(message = "A senha é obrigatória")
     @Column(nullable = false, length = 255)
     private String senha;
 
@@ -42,19 +41,23 @@ public class Usuario {
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     private LocalDateTime dataCadastro;
 
+    // LGPD (Art. 8º): Registra o momento do consentimento dos Termos e Política de Privacidade
+    @Column(name = "data_aceite_termos", updatable = false)
+    private LocalDateTime dataAceiteTermos;
+
     @PrePersist
     protected void prePersist() {
-        this.dataCadastro = LocalDateTime.now();
+        LocalDateTime agora = LocalDateTime.now();
+        this.dataCadastro = agora;
+        this.dataAceiteTermos = agora;
 
         if (this.role == null) {
             this.role = Role.USER;
         }
     }
 
-
     public Usuario() {
     }
-
 
     public Usuario(String nome, String email) {
         this.nome = nome;
@@ -86,7 +89,7 @@ public class Usuario {
     }
 
     public String getSenha() {
-    return senha;
+        return senha;
     }
 
     public void setRole(Role role) {
@@ -101,6 +104,7 @@ public class Usuario {
         return dataCadastro;
     }
 
-
-
+    public LocalDateTime getDataAceiteTermos() {
+        return dataAceiteTermos;
+    }
 }

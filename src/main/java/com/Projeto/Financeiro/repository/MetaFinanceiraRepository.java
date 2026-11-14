@@ -14,4 +14,6 @@ public interface MetaFinanceiraRepository extends JpaRepository<MetaFinanceira, 
     List<MetaFinanceira> findAllByUsuario_IdOrderByDataLimiteAsc(long usuarioId);
 
     Optional<MetaFinanceira> findByIdAndUsuario_Id(Long id, long usuarioId);
+
+    void deleteAllByUsuario_Id(long usuarioId);
 }
