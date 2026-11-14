@@ -10,5 +10,6 @@ public record ContaResponse(
     String nome,
     TipoConta tipo,
     BigDecimal saldoInicial,
+    BigDecimal saldoAtual,
     boolean ativa
 ) {}

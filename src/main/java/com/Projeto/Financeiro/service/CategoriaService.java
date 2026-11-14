@@ -12,15 +12,20 @@ import com.Projeto.Financeiro.dto.CategoriaResponse;
 import com.Projeto.Financeiro.model.Categoria;
 import com.Projeto.Financeiro.model.Usuario;
 import com.Projeto.Financeiro.repository.CategoriaRepository;
+import com.Projeto.Financeiro.repository.LancamentoRepository;
 
 @Service
 @Transactional
 public class CategoriaService {
     
     private final CategoriaRepository categoriaRepository;
+    private final LancamentoRepository lancamentoRepository;
 
-    public CategoriaService(CategoriaRepository categoriaRepository) {
+    public CategoriaService(
+            CategoriaRepository categoriaRepository,
+            LancamentoRepository lancamentoRepository) {
         this.categoriaRepository = categoriaRepository;
+        this.lancamentoRepository = lancamentoRepository;
     }
 
     public CategoriaResponse cadastrar(CategoriaRequest dados, Usuario usuario) {
@@ -36,7 +41,6 @@ public class CategoriaService {
 
         return converterParaResponse(salva);
     }
-
 
     @Transactional(readOnly = true)
     public List<CategoriaResponse> listarPorUsuario(long usuarioId) {
@@ -55,7 +59,7 @@ public class CategoriaService {
         return converterParaResponse(categoria);
     }
 
-     public CategoriaResponse atualizar(
+    public CategoriaResponse atualizar(
             Long id,
             CategoriaRequest dados,
             long usuarioId) {
@@ -71,9 +75,22 @@ public class CategoriaService {
         return converterParaResponse(atualizada);
     }
 
-    // ================= MÉTODOS AUXILIARES E VALIDAÇÕES =================
-    
-    private  Categoria buscarEntidadePorId(Long id, long usuarioId) {
+    // Excluir categoria verificando integridade (RN07)
+    public void excluir(Long id, long usuarioId) {
+
+        Categoria categoria = buscarEntidadePorId(id, usuarioId);
+
+        if (lancamentoRepository.existsByCategoria_IdAndUsuario_Id(id, usuarioId)) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Não é possível excluir esta categoria pois existem lançamentos vinculados a ela"
+            );
+        }
+
+        categoriaRepository.delete(categoria);
+    }
+
+    private Categoria buscarEntidadePorId(Long id, long usuarioId) {
 
         return categoriaRepository
                 .findByIdAndUsuario_Id(id, usuarioId)

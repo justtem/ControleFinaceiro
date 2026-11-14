@@ -70,4 +70,15 @@ public class ContaController {
 
         return ResponseEntity.ok(conta);
     }
+
+    // Excluir conta
+    @DeleteMapping("/{id:\\d+}")
+    public ResponseEntity<Void> excluir(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuario) {
+
+        contaService.excluir(id, usuario.getId());
+
+        return ResponseEntity.noContent().build();
+    }
 }

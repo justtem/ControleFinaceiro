@@ -8,12 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> tratarValidacoes(
+    public ResponseEntity<Object> tratarValidacoes(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> erros = new HashMap<>();
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> tratarArgumentos(
+    public ResponseEntity<Object> tratarArgumentos(
             IllegalArgumentException ex) {
 
         Map<String, String> erro = new HashMap<>();
@@ -37,6 +38,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(erro);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Object> tratarResponseStatus(
+            ResponseStatusException ex) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("mensagem", ex.getReason());
+
+        return ResponseEntity
+                .status(ex.getStatusCode())
                 .body(erro);
     }
 }

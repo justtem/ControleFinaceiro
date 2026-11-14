@@ -1,5 +1,6 @@
 package com.Projeto.Financeiro.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import com.Projeto.Financeiro.dto.LancamentoResponse;
 import com.Projeto.Financeiro.model.Categoria;
 import com.Projeto.Financeiro.model.Conta;
 import com.Projeto.Financeiro.model.Lancamento;
+import com.Projeto.Financeiro.model.StatusLancamento;
+import com.Projeto.Financeiro.model.TipoLancamento;
 import com.Projeto.Financeiro.model.Usuario;
 import com.Projeto.Financeiro.repository.CategoriaRepository;
 import com.Projeto.Financeiro.repository.ContaRepository;
@@ -62,24 +65,46 @@ public class LancamentoService {
 
     }
 
-    // Listar todos os lançamentos do usuário autenticado
+    // Listar lançamentos do usuário autenticado com filtros opcionais
     @Transactional(readOnly = true)
-    public List<LancamentoResponse> listarPorUsuario(long usuarioId) {
+    public List<LancamentoResponse> listarPorUsuario(
+            long usuarioId,
+            LocalDate dataInicio,
+            LocalDate dataFim,
+            Long categoriaId,
+            Long contaId,
+            TipoLancamento tipo,
+            StatusLancamento status) {
 
-        return lancamentoRepository.findAllByUsuario_IdOrderByDataDesc(usuarioId)
-                                   .stream()
-                                   .map(this::converterParaResponse)
-                                   .toList();
+        // Valida se o período de consulta é coerente
+        if (dataInicio != null && dataFim != null && dataFim.isBefore(dataInicio)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "A data final não pode ser anterior à data inicial"
+            );
+        }
+
+        return lancamentoRepository.listarComFiltros(
+                usuarioId,
+                dataInicio,
+                dataFim,
+                categoriaId,
+                contaId,
+                tipo,
+                status
+            )
+            .stream()
+            .map(this::converterParaResponse)
+            .toList();
     }
 
     // Buscar lançamento específico por ID
     @Transactional(readOnly = true)
     public LancamentoResponse buscarPorId(Long id, long usuarioId) {
         
-        Lancamento lancamento = buscarEntidadePorId(id, usuarioId); {
+        Lancamento lancamento = buscarEntidadePorId(id, usuarioId);
 
         return converterParaResponse(lancamento);
-        }
     }
 
     // Atualizar lançamento existente 
@@ -155,7 +180,7 @@ public class LancamentoService {
             );
         }
 
-        // RN03: Receita exige categoria RECEITA; Despesa exige categoria DESPESA
+        // Receita exige categoria RECEITA; Despesa exige categoria DESPESA
         if (!dados.tipo().name().equals(categoria.getTipo().name())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
@@ -163,7 +188,7 @@ public class LancamentoService {
             );
         }
 
-        // RN09: Se houver data de vencimento, não pode ser anterior à data do lançamento
+        // Se houver data de vencimento, não pode ser anterior à data do lançamento
         if (dados.dataVencimento() != null && dados.dataVencimento().isBefore(dados.data())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,

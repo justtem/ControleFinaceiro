@@ -24,6 +24,7 @@ public class CategoriaController {
         this.categoriaService = categoriaService;
     }
 
+    // Cadastrar (POST)
     @PostMapping
     public ResponseEntity<CategoriaResponse> cadastrar(
         @Valid @RequestBody CategoriaRequest dados,
@@ -33,7 +34,8 @@ public class CategoriaController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
         }
-
+    
+    // Listar (GET)
     @GetMapping 
     public ResponseEntity<List<CategoriaResponse>> listar(
         @AuthenticationPrincipal  Usuario usuario) {
@@ -44,6 +46,7 @@ public class CategoriaController {
             return ResponseEntity.ok(categorias);
         }
     
+    // Buscar por Id (GET)    
     @GetMapping("/{id:\\d+}")
     public ResponseEntity<CategoriaResponse> buscarPorId(
             @PathVariable Long id,
@@ -55,6 +58,7 @@ public class CategoriaController {
             return ResponseEntity.ok(categoria);
             }
     
+    // Atualizar (PUT)
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> atualizar(
         @PathVariable Long id,
@@ -67,7 +71,16 @@ public class CategoriaController {
             return ResponseEntity.ok(categoria);
         }
         
+    // Deletar
+     @DeleteMapping("/{id:\\d+}")
+    public ResponseEntity<Void> excluir(
+        @PathVariable Long id,
+         @AuthenticationPrincipal Usuario usuario) {
 
-    
+        categoriaService.excluir(id, usuario.getId());
+
+        return ResponseEntity.noContent().build();
+    }
+
         
 }

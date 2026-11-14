@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Projeto.Financeiro.dto.UsuarioRequest;
 import com.Projeto.Financeiro.model.Role;
 import com.Projeto.Financeiro.model.Usuario;
 import com.Projeto.Financeiro.repository.UsuarioRepository;
@@ -62,5 +63,23 @@ public class UsuarioService {
             }
 
             return Optional.of(usuario);
+        }
+
+        public Usuario atualizar(Usuario usuarioAutenticado, UsuarioRequest dados) {
+
+            if (!usuarioAutenticado.getEmail().equalsIgnoreCase(dados.getEmail())
+                 && usuarioRepository.existsByEmail(dados.getEmail())) {
+
+                throw new IllegalArgumentException(
+                    "Este e-mail já esta cadastrado por outro usuário."
+                );
+                } 
+
+            usuarioAutenticado.setNome(dados.getNome());
+            usuarioAutenticado.setEmail(dados.getEmail());
+            usuarioAutenticado.setSenha(passwordEncoder.encode(dados.getSenha()));
+
+            return usuarioRepository.save(usuarioAutenticado);
+            
         }
 }
