@@ -378,7 +378,7 @@ class FinanceiroApplicationTests {
                 .header("Authorization", bearerToken))
                 .andExpect(status().isUnauthorized());
 
-        // 22.2. Confirmar que o usuário foi realmente eliminado do banco tentando fazer login (Deve dar 401 Unauthorized)
+        // 22.2. Confirmar que o usuário foi realmente eliminado do bancSo tentando fazer login (Deve dar 401 Unauthorized)
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonLogin))
