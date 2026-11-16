@@ -402,6 +402,48 @@ class FinanceiroApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonLogin))
                 .andExpect(status().isUnauthorized());
+
+        // 23. TESTAR SEGURANÇA CONTRA FORÇA BRUTA: 5 erros seguidos devem bloquear a 6ª tentativa com 429 Too Many Requests
+        String jsonTentativaInvasao = """
+            {
+                "email": "alvo.ataque@teste.com",
+                "senha": "senhaErrada123"
+            }
+        """;
+
+        for (int i = 1; i <= 5; i++) {
+            mockMvc.perform(post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonTentativaInvasao))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        // Na 6ª tentativa, o sistema deve bloquear o ataque retornando 429 Too Many Requests!
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonTentativaInvasao))
+                .andExpect(status().isTooManyRequests());
+
+        // 24. TESTAR BLINDAGEM CONTRA JSON MALFORMADO (OWASP / LGPD Art. 46): Deve retornar 400 com mensagem limpa
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ json_quebrado_ataque: "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").exists());
+
+        // 25. TESTAR POLÍTICA DE SENHA FORTE (LGPD Art. 46): Senha sem números deve ser bloqueada com 400 Bad Request
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "nome": "Usuario Senha Fraca",
+                        "email": "fraca@teste.com",
+                        "senha": "apenasletras",
+                        "aceitouTermos": true
+                    }
+                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.senha").exists());
     }
 
     // Extrai qualquer campo (texto ou número) do JSON retornado usando Java puro

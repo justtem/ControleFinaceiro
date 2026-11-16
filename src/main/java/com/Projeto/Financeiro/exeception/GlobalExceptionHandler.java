@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -33,7 +34,6 @@ public class GlobalExceptionHandler {
             IllegalArgumentException ex) {
 
         Map<String, String> erro = new HashMap<>();
-
         erro.put("mensagem", ex.getMessage());
 
         return ResponseEntity
@@ -50,6 +50,32 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(ex.getStatusCode())
+                .body(erro);
+    }
+
+    // Segurança (OWASP / LGPD Art. 46): Evita expor nomes de classes/Enums internos quando o JSON enviado é inválido
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> tratarJsonInvalido(
+            HttpMessageNotReadableException ex) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("mensagem", "Corpo da requisição inválido ou malformado. Verifique o formato dos campos enviados.");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
+    // Segurança (OWASP / LGPD Art. 46): Captura falhas inesperadas sem vazar StackTrace ou estrutura do banco
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> tratarErroInternoGenerico(
+            Exception ex) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("mensagem", "Ocorreu um erro interno no servidor. Tente novamente mais tarde.");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(erro);
     }
 }
