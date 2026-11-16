@@ -10,6 +10,7 @@ public record ExportacaoDadosLgpdResponse(
     String emailTitular,
     LocalDateTime dataCadastro,
     LocalDateTime dataAceiteTermosLgpd,
+    String versaoTermosLgpd,
     List<CategoriaResponse> categorias,
     List<ContaResponse> contas,
     List<LancamentoResponse> lancamentos,

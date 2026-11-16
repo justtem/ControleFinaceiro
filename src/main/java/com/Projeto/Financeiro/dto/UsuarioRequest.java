@@ -19,8 +19,9 @@ public class UsuarioRequest {
     @Email(message = "Informe um e-mail válido")
     private String email;
 
-    @AssertTrue(message = "É obrigatório aceitar os Termos de Uso e a Política de Privacidade (LGPD)")
-    private boolean aceitouTermos = true;
+    // LGPD (Art. 8º, § 4º): O consentimento deve ser livre, informado e inequívoco (não pode vir pré-marcado como true)
+    @AssertTrue(message = "É obrigatório aceitar explicitamente os Termos de Uso e a Política de Privacidade (LGPD)")
+    private boolean aceitouTermos;
 
     public String getNome() {
         return this.nome;

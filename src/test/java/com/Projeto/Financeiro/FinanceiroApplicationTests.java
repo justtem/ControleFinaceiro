@@ -44,12 +44,31 @@ class FinanceiroApplicationTests {
     @DisplayName("Deve testar o fluxo completo: Auth -> Categoria -> Conta -> Lançamento -> Saldo -> Dashboard")
     void deveTestarFluxoCompletoDoSistema() throws Exception {
 
-        // 1. CADASTRAR USUÁRIO (POST /auth/register)
+      // 0.1. TESTAR LGPD (Art. 9º e 41): Rota pública de transparência dos Termos e DPO (GET /auth/termos-lgpd)
+        mockMvc.perform(get("/auth/termos-lgpd"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.versaoTermos").value("1.0"))
+                .andExpect(jsonPath("$.contatoEncarregadoDpo").exists());
+
+        // 0.2. TESTAR LGPD (Art. 8º, § 4º): Omitir aceitouTermos não pode assumir true automático (Deve dar 400 Bad Request)
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "nome": "Usuario Sem Campo Termos",
+                        "email": "omisso@teste.com",
+                        "senha": "senhaSegura123"
+                    }
+                """))
+                .andExpect(status().isBadRequest());
+
+        // 1. CADASTRAR USUÁRIO COM CONSENTIMENTO EXPLÍCITO LGPD (POST /auth/register)
         String jsonCadastro = """
             {
                 "nome": "Ana Teste Automatizado",
                 "email": "ana.auto@teste.com",
-                "senha": "senhaSegura123"
+                "senha": "senhaSegura123",
+                "aceitouTermos": true
             }
         """;
 

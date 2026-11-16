@@ -33,6 +33,10 @@ public class SecurityConfig {
                 "/auth/register",
                 "/auth/login"
             ).permitAll()
+            .requestMatchers(
+                HttpMethod.GET,
+                "/auth/termos-lgpd"
+            ).permitAll()
 
             .anyRequest().authenticated()
         )

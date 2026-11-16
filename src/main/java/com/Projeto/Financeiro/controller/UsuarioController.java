@@ -2,6 +2,7 @@ package com.Projeto.Financeiro.controller;
 
 import java.time.LocalDateTime;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,17 +49,18 @@ public class UsuarioController {
     @GetMapping("/me")
     public ResponseEntity<UsuarioResponse> buscarUsuarioAutenticado(
             @AuthenticationPrincipal Usuario usuario) {
-        
+
         if (usuario == null) {
-            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
-        }     
-                
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         UsuarioResponse resposta = new UsuarioResponse(
             usuario.getId(),
             usuario.getNome(),
             usuario.getEmail(),
             usuario.getDataCadastro(),
-            usuario.getDataAceiteTermos()
+            usuario.getDataAceiteTermos(),
+            usuario.getVersaoTermos()
         );
 
         return ResponseEntity.ok(resposta);
@@ -76,7 +78,8 @@ public class UsuarioController {
             atualizado.getNome(),
             atualizado.getEmail(),
             atualizado.getDataCadastro(),
-            atualizado.getDataAceiteTermos()
+            atualizado.getDataAceiteTermos(),
+            atualizado.getVersaoTermos()
         );
 
         return ResponseEntity.ok(resposta);
@@ -96,6 +99,7 @@ public class UsuarioController {
             usuario.getEmail(),
             usuario.getDataCadastro(),
             usuario.getDataAceiteTermos(),
+            usuario.getVersaoTermos(),
             categoriaService.listarPorUsuario(usuarioId),
             contaService.listarPorUsuario(usuarioId),
             lancamentoService.listarPorUsuario(usuarioId, null, null, null, null, null, null),
@@ -120,7 +124,8 @@ public class UsuarioController {
         String nome,
         String email,
         LocalDateTime dataCadastro,
-        LocalDateTime dataAceiteTermos
+        LocalDateTime dataAceiteTermos,
+        String versaoTermos
     ) {
     }
 }

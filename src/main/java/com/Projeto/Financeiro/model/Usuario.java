@@ -41,15 +41,22 @@ public class Usuario {
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     private LocalDateTime dataCadastro;
 
-    // LGPD (Art. 8º): Registra o momento do consentimento dos Termos e Política de Privacidade
+    // LGPD (Art. 8º): Registra o momento do consentimento e a versão dos Termos aceita
     @Column(name = "data_aceite_termos", updatable = false)
     private LocalDateTime dataAceiteTermos;
+
+    @Column(name = "versao_termos", length = 20, updatable = false)
+    private String versaoTermos;
 
     @PrePersist
     protected void prePersist() {
         LocalDateTime agora = LocalDateTime.now();
         this.dataCadastro = agora;
         this.dataAceiteTermos = agora;
+
+        if (this.versaoTermos == null || this.versaoTermos.isBlank()) {
+            this.versaoTermos = "1.0";
+        }
 
         if (this.role == null) {
             this.role = Role.USER;
@@ -106,5 +113,13 @@ public class Usuario {
 
     public LocalDateTime getDataAceiteTermos() {
         return dataAceiteTermos;
+    }
+
+    public String getVersaoTermos() {
+        return versaoTermos;
+    }
+
+    public void setVersaoTermos(String versaoTermos) {
+        this.versaoTermos = versaoTermos;
     }
 }
