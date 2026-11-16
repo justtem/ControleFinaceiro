@@ -62,6 +62,12 @@ public class SecurityConfig {
                     HttpMethod.GET,
                     "/auth/termos-lgpd"
                 ).permitAll()
+                // Libera o acesso público à documentação interativa do Swagger (OpenAPI)
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
 
                 .anyRequest().authenticated()
             )

@@ -444,6 +444,14 @@ class FinanceiroApplicationTests {
                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.senha").exists());
+
+        // 26. TESTAR DOCUMENTAÇÃO SWAGGER / OPENAPI: Garantir que o JSON da especificação e a interface estão acessíveis
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.info.title").value("API de Controle Financeiro Pessoal (Conformidade LGPD)"));
+
+        mockMvc.perform(get("/swagger-ui/index.html"))
+                .andExpect(status().isOk());
     }
 
     // Extrai qualquer campo (texto ou número) do JSON retornado usando Java puro
